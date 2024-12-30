@@ -1,0 +1,255 @@
+{% extends 'test.html' %}
+{% load static %}
+{% block content %}
+
+<form method="get" class="space-x-4 flex items-center p-4 bg-gray-50 rounded-md shadow-md">
+    <label for="sort" class="font-semibold text-gray-700">Sort by:</label>
+    <select name="sort" id="sort" class="bg-white border border-gray-300 text-gray-700 p-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <option value="Obs_ID_id">Observation ID</option>
+        <option value="reset_count">Reset Count</option>
+        <option value="last_reset_cause">Last Reset Cause</option>
+    </select>
+
+    <select name="direction" class="bg-white border border-gray-300 text-gray-700 p-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+    </select>
+
+    <label for="start_date" class="font-semibold text-gray-700">Start Date:</label>
+    <input type="date" name="start_date" id="start_date" class="bg-white border border-gray-300 text-gray-700 p-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+    <label for="end_date" class="font-semibold text-gray-700">End Date:</label>
+    <input type="date" name="end_date" id="end_date" class="bg-white border border-gray-300 text-gray-700 p-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Filter</button>
+</form>
+
+
+<div class="container mt-5">
+
+    <form method="post" action="{% url 'decoder:fetch_and_decode' %}">
+        {% csrf_token %}
+        <button type="submit" class="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200" onclick="showLoading()">Fetch up to date data</button>
+    </form>
+
+    <div id="loading" style="display:none;">
+        <div class="spinner"></div>
+        <p id="loading-text">This might take a while depending on how many observations there are</p>
+    </div>
+    
+    <h2>Data Visualization</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Reset Counts</h4>
+            <canvas id="resetCountsChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Last Reset Causes</h4>
+            <canvas id="lastResetCausesChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4 class="text-lg font-semibold mb-4">Sensor Status Summary</h4>
+            <canvas id="sensorStatusSummaryChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="bg-gray-800 shadow-md rounded-lg">
+                <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+                    <h5 class="text-lg font-semibold">Explanation of Sensor Bits</h5>
+                </div>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-300"><strong>Key:</strong> <span class="text-green-500">1 = Working</span>, <span class="text-red-500">0 = Error</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 0:</span>
+                            <p>Battery - Indicates if the battery is functioning correctly.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 1:</span>
+                            <p>EPS - Represents the Electrical Power System's operational status.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 2:</span>
+                            <p>ADCS - Indicates the Attitude Determination and Control System's status.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 3:</span>
+                            <p>U/V Modem - Shows the status of the UHF/VHF modem.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 4:</span>
+                            <p>SBand - Indicates the status of the S-band transmitter.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 5:</span>
+                            <p>iXRD - Represents the X-ray detector's operational status.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 6:</span>
+                            <p>CAM2MP - Indicates the functionality of the 2MP camera.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 7:</span>
+                            <p>CAM5MP - Indicates the functionality of the 5MP camera.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 8:</span>
+                            <p>IF Board - Represents the status of the Interface Board.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 9:</span>
+                            <p>RTC - Indicates the status of the Real-Time Clock module.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 10:</span>
+                            <p>Beacon - Shows whether the beacon is operational.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 11:</span>
+                            <p>Antennas - Indicates antenna deployment status (<span class="text-green-500">1 = All Deployed</span>, <span class="text-red-500">0 = Non-Deployed</span>).</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-bold text-blue-500 mr-2">Bit 12:</span>
+                            <p>Op Mode - Reflects the operational mode of the system:
+                                <ul class="list-disc pl-5 text-gray-300 mt-1">
+                                    <li>0: Startup</li>
+                                    <li>1: Nominal</li>
+                                    <li>2: Safe</li>
+                                    <li>3: ADCS Calibration</li>
+                                    <li>4: Recovery</li>
+                                    <li>5: Sun Pointing</li>
+                                    <li>6: Camera Operation</li>
+                                    <li>7: XRD Operation</li>
+                                    <li>8: Diagnostics</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    
+<!-- 
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4>Debug Data</h4>
+            <pre>{{ reset_dates }}</pre>
+            <pre>{{ reset_counts }}</pre>
+        </div>
+    </div>
+-->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Reset Counts Chart
+        var resetCountsCtx = document.getElementById('resetCountsChart').getContext('2d');
+        var resetCountsData = JSON.parse('{{ reset_counts|escapejs }}');
+        var resetDatesData = JSON.parse('{{ reset_dates|escapejs }}');
+        var resetCountsChart = new Chart(resetCountsCtx, {
+            type: 'bar',
+            data: {
+                labels: resetDatesData,
+                datasets: [{
+                    label: 'Reset Counts',
+                    data: resetCountsData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Last Reset Causes Chart
+        var lastResetCausesCtx = document.getElementById('lastResetCausesChart').getContext('2d');
+        var lastResetCausesData = JSON.parse('{{ last_reset_causes|escapejs }}');
+        var resetDatesData = JSON.parse('{{ reset_dates|escapejs }}');
+        var lastResetCausesChart = new Chart(lastResetCausesCtx, {
+            type: 'bar',
+            data: {
+                labels: resetDatesData,
+                datasets: [{
+                    label: 'Last Reset Causes',
+                    data: lastResetCausesData,
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Sensor Status Summary Chart
+        var sensorStatusSummaryCtx = document.getElementById('sensorStatusSummaryChart').getContext('2d');
+        var sensorStatusSummaryLabels = JSON.parse('{{ sensor_status_summary_labels|escapejs }}');
+        var sensorStatusSummaryValues = JSON.parse('{{ sensor_status_summary_values|escapejs }}');
+        var sensorStatusSummaryChart = new Chart(sensorStatusSummaryCtx, {
+            type: 'pie',
+            data: {
+                labels: sensorStatusSummaryLabels,
+                datasets: [{
+                    label: 'Sensor Status Summary',
+                    data: sensorStatusSummaryValues,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Sensor Status Summary'
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'test.html' %}
+{% load static %}
+{% block content %}
+<!-- 
+
+<h1>Hex Decoder</h1>
+    {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="hex_input">Enter 272 Hex Words (separated by spaces):</label>
+        <input type="text" id="hex_input" name="hex_input" value="{{ hex_input|default:'' }}" pattern="(?:[0-9a-fA-F]{2}\s){271}[0-9a-fA-F]{2}">
+        <button type="submit">Decode</button>
+    </form>
+    {% if decoded_values %}
+        <h2>Decoded Values (Little Endian):</h2>
+        <ul>
+            {% for value in decoded_values %}
+                <li>{{ value }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+-->
+
+<div class="max-w-3xl mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-md">
+    <!-- Dark Mode Toggle Button -->
+    <div class="flex justify-end">
+        <button id="theme-toggle" class="bg-blue-500 text-white px-4 py-2 rounded-md mb-4">
+            Toggle Dark Mode
+        </button>
+    </div>
+
+    <h1 class="text-2xl font-semibold mb-6">Hex Decoder</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="hex-input" class="block mb-2 text-sm font-medium">Enter 272 Hex Words (separated by spaces):</label>
+        <input type="text" id="hex_input" name="hex_input" value="{{ hex_input|default:'' }}" pattern="(?:[0-9a-fA-F]{2}\s){271}[0-9a-fA-F]{2}" rows="10" class="w-full p-4 border border-gray-700 rounded-md text-gray-900 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></textarea>
+        <button type="submit" class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">Decode</button>
+    </form>
+
+    <form method="post" action="{% url 'decoder:visualize_data' %}">
+        {% csrf_token %}
+        <button type="submit" class="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200">See data graphs</button>
+    </form>
+
+    {% if error_message %}
+        <div class="bg-red-500 text-white p-4 rounded-md mb-6">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    {% if status_list %}
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-4">Sensor Status:</h2>
+            <ul class="space-y-2">
+                {% for status in status_list %}
+                    <li class="bg-gray-700 p-3 rounded-md {% if 'ok' in status %}text-green-500{% else %}text-red-500{% endif %}">
+                        {{ status }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if decoded_values %}
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-4">Decoded Values:</h2>
+            <ul class="space-y-2">
+                {% for value in decoded_values %}
+                    <li class="bg-gray-700 p-3 rounded-md">{{ value }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

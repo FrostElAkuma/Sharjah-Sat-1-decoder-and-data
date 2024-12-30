@@ -1,0 +1,31 @@
+{% extends 'test.html' %}
+{% load static %}
+{% block content %}
+
+<h2 class="text-2xl font-semibold text-gray-800 mb-4">Daily Trends</h2>
+
+<!-- Add navigation button -->
+<div class="mt-4">
+    <a href="{% url 'visualize_data' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">Back to Data Visualization</a>
+</div>
+
+<table class="min-w-full bg-white shadow-md rounded-md overflow-hidden">
+    <thead class="bg-blue-500 text-white">
+        <tr>
+            <th class="px-4 py-2 text-left">Date</th>
+            <th class="px-4 py-2 text-left">Average Reset Count</th>
+            <th class="px-4 py-2 text-left">Total Observations</th>
+        </tr>
+    </thead>
+    <tbody class="text-gray-700">
+        {% for trend in trends %}
+        <tr class="hover:bg-gray-100">
+            <td class="px-4 py-2">{{ trend.date }}</td>
+            <td class="px-4 py-2">{{ trend.avg_reset_count }}</td>
+            <td class="px-4 py-2">{{ trend.reset_count_count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

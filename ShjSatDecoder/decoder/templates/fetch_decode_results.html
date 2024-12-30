@@ -1,0 +1,33 @@
+<!-- decoder/templates/decoder/fetch_decode_results.html -->
+{% extends "test.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-md">
+    <!-- Dark Mode Toggle Button -->
+    <div class="flex justify-end">
+        <button id="theme-toggle" class="bg-blue-500 text-white px-4 py-2 rounded-md mb-4">
+            Toggle Dark Mode
+        </button>
+    </div>
+
+    <h1 class="text-2xl font-semibold mb-6">Fetch and Decode Results</h1>
+
+    <ul class="space-y-2">
+        {% for result in results %}
+            <li class="bg-gray-700 p-3 rounded-md">
+                {% if result.error %}
+                    <p>{{ result.error }}</p>
+                {% else %}
+                    <p><strong>Observation ID:</strong> {{ result.observation_id }}</p>
+                    <p><strong>Hex Data:</strong> {{ result.hex_data }}</p>
+                    <p><strong>Download Link:</strong> <a href="{{ result.download_link }}" class="text-blue-400 underline" target="_blank">{{ result.download_link }}</a></p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="mt-4">
+        <a href="{% url 'decoder:decoder_view' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">Back</a>
+    </div>
+</div>
+{% endblock %}
